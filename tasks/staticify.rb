@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'open3'
+require 'rubygems/version'
 
 module CRIU::Staticify
   PATCH_PATH = File.expand_path(File.dirname(__FILE__) + '/criu_a.patch')
@@ -14,7 +15,7 @@ module CRIU::Staticify
   end
 
   def bundle_libcriu
-    version = CRIU::CRIU_VERSION
+    version = Gem::Version.new(CRIU::CRIU_VERSION)
     tarball_url = "https://github.com/checkpoint-restore/criu/archive/v#{version}.tar.gz"
 
     def criu_dir(b); (ENV["CRIU_TMP_DIR"] || "#{b.build_dir}/vendor/libcriu"); end
@@ -33,7 +34,7 @@ module CRIU::Staticify
         run_command ENV, "mkdir -p #{File.dirname(criu_dir(build))} #{File.dirname(criu_dir(build))}"
         run_command ENV, "curl -sL #{tarball_url} | tar -xz -f - -C #{tmpdir}"
         run_command ENV, "mv -f #{tmpdir}/criu-#{version} #{criu_dir(build)}"
-        if CRIU::CRIU_VERSION != '3.13'
+        if version < Gem::Version.new('3.13')
           run_command ENV, "cd #{criu_dir(build)} && patch -p1 < #{PATCH_PATH}"
         end
         run_command ENV, "cd #{File.dirname(libcriu_a(build))} && ln -s . criu" # resolve include <criu/criu.h>

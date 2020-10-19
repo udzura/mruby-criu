@@ -1,6 +1,6 @@
 module CRIU
   unless CRIU.const_defined? :CRIU_VERSION
-    CRIU_VERSION = "3.13"
+    CRIU_VERSION = "3.14"
   end
 end
 
